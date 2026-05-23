@@ -34,6 +34,8 @@ for (const expected of [
   'List',
   'Kill(SessionArgs)',
   'Snap(SessionArgs)',
+  'Send(SendArgs)',
+  'send-keys',
   'capture-pane',
   'list-sessions',
   'kill-session',
