@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "check:scaffold": "node scripts/check-scaffold.mjs",
+    "check:stain": "node scripts/check-stain-cli.mjs",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build"
   },
