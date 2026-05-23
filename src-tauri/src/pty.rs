@@ -1,5 +1,5 @@
 use anyhow::{bail, Context, Result};
-use rust_pty::{NativePtySystem, PtyChild, PtyConfig, PtySystem};
+use rust_pty::{NativePtySystem, PtyConfig, PtySystem};
 use std::ffi::OsString;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::{broadcast, mpsc};
