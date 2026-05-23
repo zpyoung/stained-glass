@@ -112,15 +112,22 @@ jobs:
         run: |
           set -euo pipefail
           ./target/release/stain --help
+          trap './target/release/stain kill --session stained-glass-ci || true' EXIT
           ./target/release/stain open \
             --session stained-glass-ci \
             --cmd "sh -lc 'printf \"# CI smoke\\n\\n- rmux session is alive\\n\"; sleep 30'" \
             --cwd "$PWD" \
             --no-gui
           ./target/release/stain list | grep stained-glass-ci
-          ./target/release/stain snap --session stained-glass-ci | tee /tmp/stain-snap.txt
-          grep '# CI smoke' /tmp/stain-snap.txt
-          ./target/release/stain kill --session stained-glass-ci
+          for attempt in {1..10}; do
+            ./target/release/stain snap --session stained-glass-ci | tee /tmp/stain-snap.txt
+            if grep '# CI smoke' /tmp/stain-snap.txt; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo 'Timed out waiting for rmux pane snapshot text' >&2
+          exit 1
 
   ci-summary:
     name: CI summary
