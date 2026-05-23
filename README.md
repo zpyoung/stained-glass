@@ -86,6 +86,8 @@ node --check src/vendor/highlight.js
 python3 -m json.tool src-tauri/tauri.conf.json >/dev/null
 ```
 
+GitHub Actions runs these checks on pushes and pull requests, then validates the Rust/Tauri toolchain on Ubuntu by installing the Tauri Linux prerequisites, running workspace tests/builds, building the Tauri bundle, installing `rmux`, and smoke-testing `stain` against a temporary rmux session. The CI smoke uses a shell command instead of real `claude` credentials; live Claude GUI validation still needs a developer machine with `claude` authenticated.
+
 With Rust/Cargo available:
 
 ```bash
