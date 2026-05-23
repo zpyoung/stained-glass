@@ -2,6 +2,7 @@
 
 mod pty;
 mod session;
+mod snapshot;
 
 fn main() {
     tauri::Builder::default()
