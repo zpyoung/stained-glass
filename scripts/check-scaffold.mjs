@@ -1,5 +1,7 @@
 import { access, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import assert from 'node:assert/strict';
+import { marked } from '../src/vendor/marked.js';
 
 const root = new URL('..', import.meta.url).pathname;
 const requiredFiles = [
@@ -13,6 +15,9 @@ const requiredFiles = [
   'src/ipc.js',
   'src/terminal.js',
   'src/preview.js',
+  'src/vendor/xterm.js',
+  'src/vendor/marked.js',
+  'src/vendor/highlight.js',
   'README.md'
 ];
 
@@ -29,10 +34,29 @@ if (tauriConfig.build?.frontendDist !== '../src') {
 }
 
 const index = await readFile(join(root, 'src/index.html'), 'utf8');
-for (const id of ['terminal', 'preview', 'status']) {
+for (const id of ['terminal', 'preview', 'status', 'preview-toggle', 'autoscroll-toggle', 'split-toggle']) {
   if (!index.includes(`id="${id}"`)) {
     throw new Error(`src/index.html is missing #${id}`);
   }
 }
+
+const terminal = await readFile(join(root, 'src/terminal.js'), 'utf8');
+for (const expected of ['onPtyData', 'sendInput', 'resizePty', 'Terminal']) {
+  if (!terminal.includes(expected)) {
+    throw new Error(`src/terminal.js must configure ${expected}`);
+  }
+}
+
+const preview = await readFile(join(root, 'src/preview.js'), 'utf8');
+for (const expected of ['onPaneSnapshot', 'marked', 'hljs', 'innerHTML']) {
+  if (!preview.includes(expected)) {
+    throw new Error(`src/preview.js must configure ${expected}`);
+  }
+}
+
+const rendered = marked.parse('# Hello\n\n<script>alert(1)</script>\n\n- **safe** item');
+assert.match(rendered, /<h1>Hello<\/h1>/);
+assert.match(rendered, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
+assert.match(rendered, /<strong>safe<\/strong>/);
 
 console.log(`Scaffold check passed (${requiredFiles.length} files verified).`);

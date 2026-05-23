@@ -11,23 +11,29 @@
       <header class="topbar">
         <div class="brand">Stained Glass</div>
         <div class="toolbar" aria-label="View controls">
-          <button type="button" disabled>Split</button>
-          <button type="button" disabled>Preview</button>
-          <button type="button" disabled>Auto</button>
-          <button type="button" disabled>Theme</button>
+          <button id="split-toggle" type="button" aria-pressed="true">Split</button>
+          <button id="preview-toggle" type="button" aria-pressed="true">Preview</button>
+          <button id="autoscroll-toggle" type="button" aria-pressed="true">Auto-scroll</button>
+          <button id="theme-toggle" type="button" aria-pressed="false">Dim</button>
         </div>
       </header>
 
-      <main class="workspace">
+      <main id="workspace" class="workspace" data-preview="visible">
         <section class="pane terminal-pane" aria-label="Terminal pane">
-          <div class="pane-header">▸ Terminal</div>
-          <pre id="terminal" class="terminal-surface" role="application" aria-label="Interactive Claude terminal">Terminal backend pending. Issue #7 will add PTY streaming.</pre>
+          <div class="pane-header">
+            <span>▸ Terminal</span>
+            <span id="terminal-state" class="pane-meta">not connected</span>
+          </div>
+          <div id="terminal" class="terminal-surface" role="application" aria-label="Interactive Claude terminal"></div>
         </section>
 
-        <div class="splitter" aria-hidden="true"></div>
+        <div class="splitter" role="presentation"></div>
 
-        <section class="pane preview-pane" aria-label="Markdown preview pane">
-          <div class="pane-header">⬜ Preview</div>
+        <section id="preview-pane" class="pane preview-pane" aria-label="Markdown preview pane">
+          <div class="pane-header">
+            <span>⬜ Preview</span>
+            <span id="preview-state" class="pane-meta">waiting for snapshot</span>
+          </div>
           <article id="preview" class="preview-content">
             <p class="placeholder">Start a session to render Claude markdown snapshots here.</p>
           </article>
