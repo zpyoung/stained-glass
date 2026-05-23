@@ -1,6 +1,7 @@
 # Spike: dependency and command validation for Stained Glass MVP
 
-Issue: [#4](https://github.com/zpyoung/stained-glass/issues/4)  
+Issue: [#4](https://github.com/zpyoung/stained-glass/issues/4)
+
 Source spec: [Discussion #2](https://github.com/zpyoung/stained-glass/discussions/2)
 
 ## Goal
