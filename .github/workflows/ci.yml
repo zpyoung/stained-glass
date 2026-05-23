@@ -58,7 +58,8 @@ jobs:
             libssl-dev \
             libwebkit2gtk-4.1-dev \
             patchelf \
-            pkg-config
+            pkg-config \
+            xdg-utils
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
