@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stained Glass</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">Stained Glass</div>
+        <div class="toolbar" aria-label="View controls">
+          <button type="button" disabled>Split</button>
+          <button type="button" disabled>Preview</button>
+          <button type="button" disabled>Auto</button>
+          <button type="button" disabled>Theme</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="pane terminal-pane" aria-label="Terminal pane">
+          <div class="pane-header">▸ Terminal</div>
+          <pre id="terminal" class="terminal-surface" role="application" aria-label="Interactive Claude terminal">Terminal backend pending. Issue #7 will add PTY streaming.</pre>
+        </section>
+
+        <div class="splitter" aria-hidden="true"></div>
+
+        <section class="pane preview-pane" aria-label="Markdown preview pane">
+          <div class="pane-header">⬜ Preview</div>
+          <article id="preview" class="preview-content">
+            <p class="placeholder">Start a session to render Claude markdown snapshots here.</p>
+          </article>
+        </section>
+      </main>
+
+      <footer id="status" class="statusbar">● idle · waiting for backend IPC</footer>
+    </div>
+
+    <script type="module" src="./ipc.js"></script>
+    <script type="module" src="./terminal.js"></script>
+    <script type="module" src="./preview.js"></script>
+  </body>
+</html>
