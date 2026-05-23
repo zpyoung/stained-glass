@@ -86,7 +86,7 @@ node --check src/vendor/highlight.js
 python3 -m json.tool src-tauri/tauri.conf.json >/dev/null
 ```
 
-GitHub Actions runs these checks on pushes and pull requests, then validates the Rust/Tauri toolchain on Ubuntu by installing the Tauri Linux prerequisites, running workspace tests/builds, building the Tauri bundle, installing `rmux`, and smoke-testing `stain` against a temporary rmux session. The CI smoke uses a shell command instead of real `claude` credentials; live Claude GUI validation still needs a developer machine with `claude` authenticated.
+GitHub Actions runs these checks on pushes and pull requests, then validates the Rust/Tauri toolchain on Ubuntu by installing the Tauri Linux prerequisites, running workspace tests/builds, building the Tauri bundle, installing `rmux`, and smoke-testing `stain` against a temporary rmux session. The CI smoke uses a shell command instead of real `claude` credentials; it verifies session creation/listing, `stain send` input, `stain snap` output capture, and cleanup. Live Claude GUI validation still needs a developer machine with `claude` authenticated.
 
 With Rust/Cargo available:
 
@@ -121,15 +121,17 @@ cargo build --release -p stain
 ./target/release/stain --help
 ./target/release/stain open --session stained-glass-smoke --cmd claude --cwd "$PWD" --no-gui
 ./target/release/stain list
+./target/release/stain send --session stained-glass-smoke --text "/mcp" --enter
 ./target/release/stain snap --session stained-glass-smoke
 ./target/release/stain kill --session stained-glass-smoke
 ```
 
 Expected results:
 
-- `stain --help` lists `open`, `attach`, `list`, `kill`, and `snap`.
+- `stain --help` lists `open`, `attach`, `list`, `kill`, `snap`, and `send`.
 - `open --no-gui` creates or reuses the rmux session and exits `0`.
 - `list` includes the smoke session while it is alive.
+- `send` writes input into the target rmux pane; with `--enter`, it submits the text as a command/message.
 - `snap` prints a plain-text pane snapshot and does not include ANSI escape codes.
 - `kill` exits `0`, and the session disappears from `list`.
 
@@ -203,7 +205,7 @@ rmux pane buffer
 CLI control:
 
 ```text
-stain open/list/kill/snap/attach
+stain open/send/list/kill/snap/attach
   → std::process::Command argv arrays
   → rmux CLI
   → session lifecycle or plain-text snapshot output
@@ -217,6 +219,7 @@ stain open/list/kill/snap/attach
 stain --help
 stain open --session claude --cmd claude --cwd "$PWD"
 stain open --session claude --no-gui
+stain send --session claude --text "/mcp" --enter
 stain attach --session claude
 stain list
 stain snap --session claude
@@ -226,6 +229,7 @@ stain kill --session claude
 Command behavior:
 
 - `open`: creates the named rmux session when missing, using `--cmd` and `--cwd`, then attempts to launch the GUI unless `--no-gui` is set.
+- `send`: sends text to the named rmux session with `rmux send-keys`; `--enter` appends an Enter keypress.
 - `attach`: attaches the current terminal directly to `rmux attach-session -t <session>`.
 - `list`: prints active rmux session names.
 - `snap`: prints an ANSI-stripped plain-text `rmux capture-pane` snapshot.

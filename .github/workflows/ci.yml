@@ -115,13 +115,17 @@ jobs:
           trap './target/release/stain kill --session stained-glass-ci || true' EXIT
           ./target/release/stain open \
             --session stained-glass-ci \
-            --cmd "sh -lc 'printf \"# CI smoke\\n\\n- rmux session is alive\\n\"; sleep 30'" \
+            --cmd "sh -lc 'printf \"# CI smoke\\n\\n- rmux session is alive\\n\"; while IFS= read -r line; do printf \"input: %s\\n\" \"\$line\"; done'" \
             --cwd "$PWD" \
             --no-gui
           ./target/release/stain list | grep stained-glass-ci
+          ./target/release/stain send \
+            --session stained-glass-ci \
+            --text "typed-through-rmux" \
+            --enter
           for attempt in {1..10}; do
             ./target/release/stain snap --session stained-glass-ci | tee /tmp/stain-snap.txt
-            if grep '# CI smoke' /tmp/stain-snap.txt; then
+            if grep '# CI smoke' /tmp/stain-snap.txt && grep 'input: typed-through-rmux' /tmp/stain-snap.txt; then
               exit 0
             fi
             sleep 1

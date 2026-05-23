@@ -29,6 +29,8 @@ enum Commands {
     Kill(SessionArgs),
     /// Print a plain-text snapshot of the current pane.
     Snap(SessionArgs),
+    /// Send text to an existing rmux session.
+    Send(SendArgs),
 }
 
 #[derive(Debug, Args)]
@@ -52,6 +54,19 @@ struct OpenArgs {
     /// Ensure the rmux session only; do not launch the GUI.
     #[arg(long)]
     no_gui: bool,
+}
+
+#[derive(Debug, Args)]
+struct SendArgs {
+    /// rmux session name.
+    #[arg(long, default_value = DEFAULT_SESSION)]
+    session: String,
+    /// Text to send to the rmux pane.
+    #[arg(long)]
+    text: String,
+    /// Press Enter after sending the text.
+    #[arg(long)]
+    enter: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -96,6 +111,7 @@ fn run(cli: Cli) -> Result<()> {
         Commands::List => list(),
         Commands::Kill(args) => kill(&args.session),
         Commands::Snap(args) => snap(&args.session),
+        Commands::Send(args) => send(&args.session, &args.text, args.enter),
     }
 }
 
@@ -155,6 +171,15 @@ fn snap(session: &str) -> Result<()> {
         bail!("{}", format_command_failure(&spec, &output));
     }
     print!("{}", strip_ansi(&String::from_utf8_lossy(&output.stdout)));
+    Ok(())
+}
+
+fn send(session: &str, text: &str, enter: bool) -> Result<()> {
+    let spec = send_command(session, text, enter);
+    let output = run_output(&spec)?;
+    if !output.status.success() {
+        bail!("{}", format_command_failure(&spec, &output));
+    }
     Ok(())
 }
 
@@ -243,6 +268,19 @@ fn snap_command(session: &str) -> CommandSpec {
     CommandSpec::new(RMUX_BIN, ["capture-pane", "-p", "-e", "-t", session])
 }
 
+fn send_command(session: &str, text: &str, enter: bool) -> CommandSpec {
+    let mut args = vec![
+        "send-keys".to_string(),
+        "-t".to_string(),
+        session.to_string(),
+        text.to_string(),
+    ];
+    if enter {
+        args.push("Enter".to_string());
+    }
+    CommandSpec::new(RMUX_BIN, args)
+}
+
 fn run_output(spec: &CommandSpec) -> Result<Output> {
     spec.command()
         .output()
@@ -323,11 +361,19 @@ mod tests {
     }
 
     #[test]
-    fn constructs_attach_list_kill_and_snap_commands() {
+    fn constructs_attach_list_kill_snap_and_send_commands() {
         assert_eq!(attach_command("demo"), CommandSpec::new("rmux", ["attach-session", "-t", "demo"]));
         assert_eq!(list_command(), CommandSpec::new("rmux", ["list-sessions", "-F", "#{session_name}"]));
         assert_eq!(kill_command("demo"), CommandSpec::new("rmux", ["kill-session", "-t", "demo"]));
         assert_eq!(snap_command("demo"), CommandSpec::new("rmux", ["capture-pane", "-p", "-e", "-t", "demo"]));
+        assert_eq!(
+            send_command("demo", "/mcp", true),
+            CommandSpec::new("rmux", ["send-keys", "-t", "demo", "/mcp", "Enter"])
+        );
+        assert_eq!(
+            send_command("demo", "hello", false),
+            CommandSpec::new("rmux", ["send-keys", "-t", "demo", "hello"])
+        );
     }
 
     #[test]
