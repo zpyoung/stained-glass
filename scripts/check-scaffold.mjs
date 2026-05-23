@@ -8,6 +8,7 @@ const requiredFiles = [
   'Cargo.toml',
   'src-tauri/Cargo.toml',
   'src-tauri/tauri.conf.json',
+  'src-tauri/icons/icon.png',
   'src-tauri/build.rs',
   'src-tauri/src/main.rs',
   'src/index.html',

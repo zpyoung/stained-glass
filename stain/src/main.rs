@@ -181,19 +181,23 @@ fn launch_gui() -> Result<()> {
         return spawn_gui(CommandSpec::new(command, [] as [&str; 0]));
     }
 
-    #[cfg(target_os = "macos")]
-    {
-        return spawn_gui(CommandSpec::new("open", ["-a", "Stained Glass"]));
-    }
+    launch_default_gui()
+}
 
-    #[cfg(target_os = "linux")]
-    {
-        return spawn_gui(CommandSpec::new("gtk-launch", ["stained-glass"])).or_else(|_| {
-            spawn_gui(CommandSpec::new("xdg-open", ["stained-glass://open"] as [&str; 1]))
-        });
-    }
+#[cfg(target_os = "macos")]
+fn launch_default_gui() -> Result<()> {
+    spawn_gui(CommandSpec::new("open", ["-a", "Stained Glass"]))
+}
 
-    #[allow(unreachable_code)]
+#[cfg(target_os = "linux")]
+fn launch_default_gui() -> Result<()> {
+    spawn_gui(CommandSpec::new("gtk-launch", ["stained-glass"])).or_else(|_| {
+        spawn_gui(CommandSpec::new("xdg-open", ["stained-glass://open"] as [&str; 1]))
+    })
+}
+
+#[cfg(not(any(target_os = "macos", target_os = "linux")))]
+fn launch_default_gui() -> Result<()> {
     bail!("automatic GUI launch is not configured for this platform; run `stain attach` or launch Stained Glass manually")
 }
 
