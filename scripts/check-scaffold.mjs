@@ -11,6 +11,12 @@ const requiredFiles = [
   'src-tauri/icons/icon.png',
   'src-tauri/build.rs',
   'src-tauri/src/main.rs',
+  'scripts/check-claude-bridge.mjs',
+  'bridge/claude/schema.mjs',
+  'bridge/claude/channel-server.mjs',
+  'bridge/claude/harness.mjs',
+  'bridge/claude/hook-normalizer.mjs',
+  'docs/spikes/0002-claude-code-bridge.md',
   'src/index.html',
   'src/style.css',
   'src/ipc.js',
@@ -59,5 +65,33 @@ const rendered = marked.parse('# Hello\n\n<script>alert(1)</script>\n\n- **safe*
 assert.match(rendered, /<h1>Hello<\/h1>/);
 assert.match(rendered, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
 assert.match(rendered, /<strong>safe<\/strong>/);
+
+const claudeBridge = await readFile(join(root, 'bridge/claude/channel-server.mjs'), 'utf8');
+for (const expected of [
+  "'claude/channel'",
+  "'claude/channel/permission'",
+  'notifications/claude/channel',
+  'stained_glass_reply',
+  'stained_glass_status',
+  'stained_glass_artifact'
+]) {
+  if (!claudeBridge.includes(expected)) {
+    throw new Error(`bridge/claude/channel-server.mjs must declare ${expected}`);
+  }
+}
+
+const spikeDoc = await readFile(join(root, 'docs/spikes/0002-claude-code-bridge.md'), 'utf8');
+for (const expected of [
+  'Claude Code v2.1.80+',
+  '--dangerously-load-development-channels',
+  'session launching/supervision',
+  'durable recovery',
+  'permission UX',
+  'frontend polish'
+]) {
+  if (!spikeDoc.includes(expected)) {
+    throw new Error(`docs/spikes/0002-claude-code-bridge.md must document ${expected}`);
+  }
+}
 
 console.log(`Scaffold check passed (${requiredFiles.length} files verified).`);
