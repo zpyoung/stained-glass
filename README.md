@@ -12,7 +12,10 @@ stained-glass/
 ├── package.json                # npm scripts for scaffold and CLI shape checks
 ├── scripts/
 │   ├── check-scaffold.mjs      # verifies frontend/Tauri scaffold files/config
+│   ├── check-claude-bridge.mjs # verifies Claude Code bridge spike contracts
 │   └── check-stain-cli.mjs     # verifies the CLI crate shape without Cargo
+├── bridge/
+│   └── claude/                 # Node stdlib Claude Code channel/hook bridge spike
 ├── stain/                      # CLI companion binary crate
 │   ├── Cargo.toml
 │   └── src/main.rs             # `stain` open/attach/list/kill/snap
@@ -74,9 +77,15 @@ Lightweight checks that do not require Rust, Cargo, Tauri system dependencies, `
 
 ```bash
 npm run check:scaffold
+npm run check:claude-bridge
 npm run check:stain
 node --check scripts/check-scaffold.mjs
+node --check scripts/check-claude-bridge.mjs
 node --check scripts/check-stain-cli.mjs
+node --check bridge/claude/schema.mjs
+node --check bridge/claude/channel-server.mjs
+node --check bridge/claude/harness.mjs
+node --check bridge/claude/hook-normalizer.mjs
 node --check src/ipc.js
 node --check src/terminal.js
 node --check src/preview.js
@@ -201,6 +210,25 @@ rmux pane buffer
   → src/preview.js marked/highlight-compatible render
   → preview pane
 ```
+
+Claude Code bridge spike:
+
+```text
+Stained Glass app message
+  → bridge/claude/channel-server.mjs buildChannelNotification()
+  → notifications/claude/channel
+  → running Claude Code session with custom channel enabled
+  → stained_glass_reply/status/artifact tool call
+  → bridge NDJSON event log
+  → future Tauri UI event stream
+
+Claude Code hook event
+  → bridge/claude/hook-normalizer.mjs
+  → normalized bridge NDJSON event log
+  → future Tauri UI event stream
+```
+
+See [docs/spikes/0002-claude-code-bridge.md](docs/spikes/0002-claude-code-bridge.md) for the issue #27 implementation spike, local harness commands, Claude Code research-preview constraints, and production follow-up issues.
 
 CLI control:
 
